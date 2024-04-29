@@ -13,3 +13,11 @@ The goal of this project is to apply lightweight fine-tuning to a foundation mod
 - Perform inference using the fine-tuned model and compare the results with the pre-trained model.
   - Load the PEFT model
   - Evaluate the PEFT model on the dataset
+
+## How to evaluate a pre-trained model?
+The foundation model usually has two parts:
+- Body
+- Head
+
+Head is the top layer that can be changed depending on the task. For example: text generation, classification, <br>
+translation, Q&A, etc. <br>
