@@ -2,6 +2,7 @@ from transformers import BertTokenizer, BertForSequenceClassification, BertConfi
 from transformers import Trainer, TrainingArguments, DataCollatorWithPadding
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score
+from peft import LoraConfig, get_peft_model
 
 model_name = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(model_name)
@@ -33,11 +34,18 @@ for param in model.base_model.parameters():
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
     predictions = predictions.argmax(axis=1)
-    return {"accuracy": accuracy_score(labels, predictions)}
+    return {
+        "accuracy": accuracy_score(labels, predictions),
+    }
 
+
+# Convert to a PEFT model
+config = LoraConfig()
+lora_model = get_peft_model(model, config)
+lora_model.print_trainable_parameters()
 
 trainer = Trainer(
-    model=model,
+    model=lora_model,
     args=TrainingArguments(
         output_dir="output",
         learning_rate=2e-3,
@@ -45,11 +53,13 @@ trainer = Trainer(
         per_device_train_batch_size=8,
         do_train=True,
         do_eval=True,
-        num_train_epochs=1,
+        num_train_epochs=2,
         weight_decay=0.01,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
+        evaluation_strategy="steps",
+        save_strategy="steps",
         load_best_model_at_end=True,
+        metric_for_best_model="accuracy",
+        eval_steps=100,
     ),
     train_dataset=train_dataset,
     eval_dataset=test_dataset,
@@ -60,12 +70,3 @@ trainer = Trainer(
 
 trainer.train()
 trainer.evaluate()
-
-# # {"LABEL_0": 0, "LABEL_1": 1}
-# label_map = {label: i for i, label in enumerate(model.config.id2label.values())}
-# classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
-# predictions = classifier(test_dataset["text"])
-# predicted_labels = [label_map[prediction["label"]] for prediction in predictions]
-# true_label = test_dataset["label"]
-# accuracy = accuracy_score(true_label, predicted_labels)
-# print("accuracy: ", accuracy)
