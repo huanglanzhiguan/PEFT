@@ -18,12 +18,22 @@ if torch.cuda.is_available():
 else:
     print("CUDA is not available. Using CPU.")
 
+# Load pre-trained HF model BERT, and add a classification head to it so that
+# we can evaluate the model on the Rotten Tomatoes dataset.
 model_name = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(model_name)
 config = BertConfig.from_pretrained(model_name)
 config.num_labels = 2
+model = BertForSequenceClassification.from_pretrained(
+    model_name,
+    config=config
+)
+# Freeze all the parameters of the base model
+for param in model.base_model.parameters():
+    param.requires_grad = False
 
-# Load datasets
+
+# Load and preprocess datasets
 def tokenize_function(examples):
     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
@@ -33,34 +43,25 @@ train_dataset = dataset["train"].map(tokenize_function, batched=True)
 vali_dataset = dataset["validation"].map(tokenize_function, batched=True)
 test_dataset = dataset["test"].map(tokenize_function, batched=True)
 
-# Add a classification head
-model = BertForSequenceClassification.from_pretrained(
-    model_name,
-    config=config
-)
-
-# Freeze all the parameters of the base model
-for param in model.base_model.parameters():
-    param.requires_grad = False
-
-
 metric = evaluate.load("accuracy")
+
+
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
     return metric.compute(predictions=predictions, references=labels)
 
 
-# Convert to a PEFT model
+# Use LoRA to fine-tune the model
 config = LoraConfig(
-        r=32,
-        lora_alpha=4,
-        target_modules=["query", "key", "value"],
-        lora_dropout=0.05,
-        bias="none",
-        task_type=TaskType.SEQ_CLS,
-        inference_mode=False
-        )
+    r=32,
+    lora_alpha=4,
+    target_modules=["query", "key", "value"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.SEQ_CLS,
+    inference_mode=False
+)
 
 lora_model = get_peft_model(model, config)
 lora_model.print_trainable_parameters()
