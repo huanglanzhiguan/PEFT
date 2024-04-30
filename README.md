@@ -14,13 +14,23 @@ The goal of this project is to apply lightweight fine-tuning to a foundation mod
   - [x] Load the PEFT model
   - [x] Evaluate the PEFT model on the dataset
 
-## How to evaluate a pre-trained model?
-The foundation model usually has two parts:
-- Body
-- Head
+```bash
+usage: main.py [-h] {base,lora}
+
+Main function with base and lora arguments
+
+positional arguments:
+  {base,lora}  Specify the model type: 'base' or 'lora'
+```
+
+## Question during the project
+Q: How to evaluate a pre-trained model?
+A: The foundation model usually has two parts:
+1. Body
+2. Head
 
 Head is the top layer that can be changed depending on the task. For example: text generation, classification, <br>
-translation, Q&A, etc. <br>
+translation, Q&A, etc. So the evaluation is done by adding a head and training it on the task-specific dataset. <br>
 
 ## Notes
 ### LoraConfig
@@ -54,7 +64,9 @@ specific elements like dropout and other regularizations to be active. <br>
 ## Results
 After applying LoRA on the BERT, the accuracy improved from 70% to 83% on the test dataset
 ```bash
+python3 main.py base
+{'eval_loss': 0.6603750586509705, 'eval_accuracy': 0.6322701688555347, 'eval_runtime': 2.6918, 'eval_samples_per_second': 396.011, 'eval_steps_per_second': 6.315}
 
-BERT with LoRA:
-{'eval_loss': 0.3936154544353485, 'eval_accuracy': 0.8358348968105066, 'eval_runtime': 12.0454, 'eval_samples_per_second': 88.499, 'eval_steps_per_second': 1.411}
+python3 main.py lora
+{'eval_loss': 0.3925408720970154, 'eval_accuracy': 0.8367729831144465, 'eval_runtime': 3.805, 'eval_samples_per_second': 280.156, 'eval_steps_per_second': 4.468}
 ```
