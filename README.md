@@ -62,7 +62,7 @@ Setting it to `False` means the model is being set up for training, allowing all
 specific elements like dropout and other regularizations to be active. <br>
 
 ## Results
-After applying LoRA on the BERT, the accuracy improved from 70% to 83% on the test dataset
+After applying LoRA on the BERT, the accuracy improved from 63% to 83% on the test dataset
 ```bash
 python3 main.py base
 {'eval_loss': 0.6603750586509705, 'eval_accuracy': 0.6322701688555347, 'eval_runtime': 2.6918, 'eval_samples_per_second': 396.011, 'eval_steps_per_second': 6.315}
