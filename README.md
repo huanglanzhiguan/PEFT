@@ -1,4 +1,4 @@
-# Intro
+## Intro
 This is a project for the generative AI udacity nanodegree program. <br>
 The goal of this project is to apply lightweight fine-tuning to a foundation model. <br>
 
@@ -11,8 +11,8 @@ The goal of this project is to apply lightweight fine-tuning to a foundation mod
   - [x] Train the PEFT model
   - [x] Save the PEFT model
 - Perform inference using the fine-tuned model and compare the results with the pre-trained model.
-  - Load the PEFT model
-  - Evaluate the PEFT model on the dataset
+  - [x] Load the PEFT model
+  - [x] Evaluate the PEFT model on the dataset
 
 ## How to evaluate a pre-trained model?
 The foundation model usually has two parts:
@@ -50,3 +50,11 @@ This field is a must for the configuration. <br>
 `inference_mode` indicates whether the model is being configured for training or inference. <br>
 Setting it to `False` means the model is being set up for training, allowing all training <br>
 specific elements like dropout and other regularizations to be active. <br>
+
+## Results
+After applying LoRA on the BERT, the accuracy improved from 70% to 83% on the test dataset
+```bash
+
+BERT with LoRA:
+{'eval_loss': 0.3936154544353485, 'eval_accuracy': 0.8358348968105066, 'eval_runtime': 12.0454, 'eval_samples_per_second': 88.499, 'eval_steps_per_second': 1.411}
+```
